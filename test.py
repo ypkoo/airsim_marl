@@ -5,6 +5,7 @@ import sys, random, time
 
 ENV_NAME = "MultiagentOccupy-v0"
 sys.path.insert(0, "C:/Users/lanada/Desktop/AirSim/PythonClient")
+sys.path.insert(0, "C:/Users/lanada2/Desktop/AirSim/PythonClient")
 
 def main():
 	# env = gym.make(ENV_NAME)
