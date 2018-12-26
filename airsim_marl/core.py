@@ -20,7 +20,8 @@ class World(object):
 		self.airsim_client = MultiAgentClient(agent_n)
 		self.agent_n = agent_n
 		self.action_dim = 9
-		self.size = 100
+		self.size = 60
+		self.collaborative = True
 
 class MultiAgentClient(airsim.MultirotorClient):
 
@@ -38,20 +39,20 @@ class MultiAgentClient(airsim.MultirotorClient):
 
 	def take_action(self, action, agent_index):
 		# stop
-		if action == 9:
+		if action == 8:
 			self.moveByVelocityAsync(0, 0, 0, duration=self.duration, vehicle_name=self.agent_names[agent_index])
 		# move
 		else:
-			vx = self.velocity * np.cos(np.radians(action * 30))
-			vy = self.velocity * np.sin(np.radians(action * 30))
-			vz = -1.3
-			self.moveByVelocityZAsync(vx, vy, vz, duration=self.duration, vehicle_name=self.agent_names[agent_index])
+			vx = self.velocity * np.cos(np.radians(action * 45))
+			vy = self.velocity * np.sin(np.radians(action * 45))
+			z = -6.0
+			self.moveByVelocityZAsync(vx, vy, z, duration=self.duration, vehicle_name=self.agent_names[agent_index])
 
 	def take_off_all(self):
 
 		for agent in self.agent_names:
 			self.takeoffAsync(timeout_sec = 4, vehicle_name=agent)
-			self.moveToPositionAsync(0,0,-1.3,2, vehicle_name=agent)
+			self.moveToPositionAsync(0,0,-6.0,2, vehicle_name=agent)
 			self.hoverAsync(vehicle_name=agent)
 
 

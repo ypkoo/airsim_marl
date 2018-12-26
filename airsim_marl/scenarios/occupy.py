@@ -2,6 +2,7 @@ import setup_path
 import airsim
 from airsim_marl.core import MultiAgentClient, World
 from airsim_marl.utils import *
+import numpy as np
 
 
 class Scenario():
@@ -16,8 +17,8 @@ class Scenario():
 
 	def reward(self, agent_index, world):
 
-		goal_a_pos = (1, 2)
-		goal_b_pos = (3, 4)
+		goal_a_pos = (15, 15)
+		goal_b_pos = (-15, -15)
 
 		success_dist = 3
 
@@ -35,26 +36,46 @@ class Scenario():
 		dist_a = min(distance(goal_a_pos, (pos_list[0].x_val, pos_list[0].y_val)), distance(goal_a_pos, (pos_list[1].x_val, pos_list[1].y_val)))
 		dist_b = min(distance(goal_b_pos, (pos_list[0].x_val, pos_list[0].y_val)), distance(goal_b_pos, (pos_list[1].x_val, pos_list[1].y_val)))
 
-		""" TODO: when drones go out of border """
+		
 
-		return -(dist_a + dist_b)
+		""" TODO: when drones go out of border """
+		reward = 2 -(dist_a + dist_b)/20.
+		if reward < 0:
+			reward = 0.
+		if self.is_out(agent_index, world):
+			reward = -10.
+
+		return reward
 
 
 
 	def observation(self, agent_index, world):
 		client = world.airsim_client
 
-		pos_list = []
+		info_array = np.zeros([14, 2])
 
 		for i in range(client.agent_n):
 
+			info_list = []
+			info_list2 = []
 			state = client.getMultirotorState(vehicle_name=client.agent_names[i])
-			pos = state.kinematics_estimated.position
+			
+			info_list.append(state.kinematics_estimated.position)
+			info_list.append(state.kinematics_estimated.linear_velocity)
+			info_list.append(state.kinematics_estimated.angular_velocity)
+			info_list.append(state.kinematics_estimated.linear_acceleration)
+			info_list.append(state.kinematics_estimated.angular_acceleration)
+			info_list.append(state.kinematics_estimated.orientation)
 
-			pos_list.append(pos)
+			for j in range(6):
+				info_list2.append(info_list[j].x_val)
+				info_list2.append(info_list[j].y_val)
+			info_list2.append(info_list[5].w_val)
+			info_list2.append(info_list[5].z_val)
+			info_array[:,i] = np.array(info_list2)
 
-
-		return (pos_list[0].x_val, pos_list[0].y_val, pos_list[1].x_val, pos_list[1].y_val)
+		# print (info_array)
+		return np.reshape(info_array,[28])
 
 
 

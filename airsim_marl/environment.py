@@ -25,7 +25,7 @@ class MultiAgentEnv(gym.Env):
 
 		self.discrete_action_space = True
 
-		self.shared_reward = world.collaborative if hasattr(world, 'collaborative') else False
+		self.shared_reward = self.world.collaborative
 		self.time = 0
 
 
@@ -66,7 +66,7 @@ class MultiAgentEnv(gym.Env):
 
 		reward = np.sum(reward_n)
 		if self.shared_reward:
-			reward_n = [reward] * self.n
+			reward_n = [reward] * self.agent_n
 
 		return obs_n, reward_n, done_n, info_n
 
